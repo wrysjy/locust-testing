@@ -1,16 +1,29 @@
 version: '3'
 
 services:
+  web:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    networks:
+      - perf
   master:
     image: locustio/locust
     ports:
-     - "8089:8089"
+      - "8089:8089"
+    networks:
+      - perf
     volumes:
       - ./source:/mnt/locust
-    command: -f /mnt/locust/locustfile.py --master -H http://master:8089
+    command: -f /mnt/locust/locustfile.py --master -H http://web
 
   worker:
     image: locustio/locust
+    networks:
+      - perf
     volumes:
       - ./source:/mnt/locust
     command: -f /mnt/locust/locustfile.py --worker --master-host master
+
+networks:
+  perf:
